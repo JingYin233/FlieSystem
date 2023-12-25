@@ -820,31 +820,7 @@ public class MainController {
 					JOptionPane.QUESTION_MESSAGE);
 
 			if (result == 0) {
-				// 如果是创建者且没有读取权限
-				if (editView.getDataFCB().CreateName.equals(MainController.this.systemCore.getCurrentUser().getUsername())
-						&& !editView.getDataFCB().isCreatorWrite()) {
-					// 弹出文件已经打开的提示
-					JOptionPane.showMessageDialog(null, "权限不足，不能保存（自己）。");
-					// 退出方法
-					return;
-				}
-
-				// 如果是其他用户且没有读取权限
-				if (!editView.getDataFCB().CreateName.equals(MainController.this.systemCore.getCurrentUser().getUsername())
-						&& !editView.getDataFCB().isOtherWrite()) {
-					// 弹出文件已经打开的提示
-					JOptionPane.showMessageDialog(null, "权限不足，不能保存（其他）。");
-					// 退出方法
-					return;
-				}
-
 				// 退出并保存
-				if (editView.getDataFCB().isEdit = true) {
-					// 弹出文件已经打开的提示
-					JOptionPane.showMessageDialog(null, "文件正在被编辑，不能保存。");
-					// 退出方法
-					return;
-				}
 				editView.saveOnExit = true;
 				editView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			} else if (result == 1) {
@@ -863,19 +839,30 @@ public class MainController {
 
 			EditView editView = (EditView) e.getComponent();
 
-			// 设置文件为已关闭
-			editView.getDataFCB().isEdit = false;
-			Gson gson = new Gson();
+			// 如果是创建者且没有读取权限
+			if (editView.getDataFCB().CreateName.equals(MainController.this.systemCore.getCurrentUser().getUsername())
+					&& !editView.getDataFCB().isCreatorWrite()) {
+				// 弹出文件已经打开的提示
+				JOptionPane.showMessageDialog(null, "权限不足，不能保存（自己）。");
+				// 退出方法
+				return;
+			}
 
-			// 更新文件FCB
-			MainController.this.systemCore.updateFCB(editView.getDataFCB());
+			// 如果是其他用户且没有读取权限
+			if (!editView.getDataFCB().CreateName.equals(MainController.this.systemCore.getCurrentUser().getUsername())
+					&& !editView.getDataFCB().isOtherWrite()) {
+				// 弹出文件已经打开的提示
+				JOptionPane.showMessageDialog(null, "权限不足，不能保存（其他）。");
+				// 退出方法
+				return;
+			}
 
-			// 更新当前目录的目录文件
-			MainController.this.systemCore.updateFile(
-					MainController.this.systemCore.currentDirFCB,
-					gson.toJson(MainController.this.systemCore.currentDir));
-
-			MainController.this.systemCore.update();
+			if (editView.getDataFCB().isEdit = false) {
+				// 弹出文件已经打开的提示
+				JOptionPane.showMessageDialog(null, "文件正在被编辑，不能保存。");
+				// 退出方法
+				return;
+			}
 
 			if (editView.edited && editView.saveOnExit) {
 				// 保存文件
@@ -922,6 +909,20 @@ public class MainController {
 		public void windowDeactivated(WindowEvent e) {
 
 			EditView editView = (EditView) e.getComponent();
+
+			// 设置文件为已关闭
+			editView.getDataFCB().isEdit = false;
+			Gson gson = new Gson();
+
+			// 更新文件FCB
+			MainController.this.systemCore.updateFCB(editView.getDataFCB());
+
+			// 更新当前目录的目录文件
+			MainController.this.systemCore.updateFile(
+					MainController.this.systemCore.currentDirFCB,
+					gson.toJson(MainController.this.systemCore.currentDir));
+
+			MainController.this.systemCore.update();
 
 			System.out.println(editView.getDataFCB().filename + "退出编辑");
 
